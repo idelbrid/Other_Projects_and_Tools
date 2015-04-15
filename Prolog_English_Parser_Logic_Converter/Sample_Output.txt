@@ -1,0 +1,93 @@
+Ian Delbridge
+CSC 173
+Brown
+11/10/14
+
+***********************parsing****************
+/* Accepts and creates a correc tree for proper grammar */
+1 ?- interpret_as_tree(Tree).
+|: The boy runs.
+Tree = sentence(noun_phrase(determiner(exists), noun(boy)), verb_phrase(verb(runs))) .
+
+2 ?- interpret_as_tree(Tree).
+|: Girls like an apple.Tree = sentence(noun_phrase(noun(girl)), verb_phrase(verb(like), noun_phrase(determiner(exists), noun(apple)))) .
+
+3 ?- interpret_as_tree(Tree).
+|: Any government that conscripts people is evil!
+Tree = sentence(noun_phrase(determiner(all), noun(government), relative_clause(relative_pronoun(that), verb_phrase(verb(conscripts), noun_phrase(noun(person))))), verb_phrase(linking_verb(is), adjective(evil))) .
+
+4 ?- interpret_as_tree(Tree).
+|: The boy whom the girl likes likes a watermelon.
+Tree = sentence(noun_phrase(determiner(exists), noun(boy), relative_clause(relative_pronoun(whom), noun_phrase(determiner(exists), noun(girl)), verb_phrase(verb(likes)))), verb_phrase(verb(likes), noun_phrase(determiner(exists), noun(watermelon)))) .
+
+5 ?- interpret_as_tree(Tree).
+|: The boys who like girls like watermelons.
+Tree = sentence(noun_phrase(determiner(exists), noun(boy), relative_clause(relative_pronoun(who), verb_phrase(verb(like), noun_phrase(noun(girl))))), verb_phrase(verb(like), noun_phrase(noun(watermelon)))) .
+
+/* Identifies improper grammar */
+6 ?- interpret_as_tree(Tree).
+|: The boys whom like girls like watermelons.
+false.
+
+7 ?- interpret_as_tree(Tree).
+|: The boys who the girls like like watermelon.
+false.
+
+8 ?- interpret_as_tree(Tree).
+|: The boy run.
+false.
+
+9 ?- interpret_as_tree(Tree).
+|: Girls likes an apple.
+false.
+
+10 ?- interpret_as_tree(Tree).
+|: A government that conscripts people are evil.
+false.
+
+/* knows when to use "who/whom" versus "which/that". 
+ * (I assumed who/whom refers to people,
+ * but which/that refers to things) /*
+1 ?- interpret_as_tree(Tree).
+|: The boy who the girl likes likes a watermelon.
+false.
+
+2 ?- interpret_as_tree(Tree).
+|: The boy which the girl likes likes a watermelon.
+false.
+
+
+/* knows when to use "an" versus "a". */
+1 ?- interpret_as_tree(Tree).
+|: An apple is good.
+Tree = sentence(noun_phrase(determiner(exists), noun(apple)), verb_phrase(linking_verb(is), adjective(good))) .
+
+3 ?- interpret_as_tree(Tree).
+|: A apple is good.
+false.
+
+************translating into First Order Logic*************
+
+?1 ?- interpret_as_logic(FOPC).
+|: All boys run.
+FOPC = all(x1, boy(x1)=>run(x1)) .
+
+2 ?- interpret_as_logic(FOPC).
+|: All boys like all watermelons that contain some divine flavor.
+problem_in_rel3problem_in_vp1problem_in_vp3
+FOPC = all(x2, boy(x2)=>like(x2, all(x3, watermelon(x3)&contain(x3, exists(x4, flavor(x4)&divine(x4)))))) .
+
+3 ?- interpret_as_logic(FOPC).
+|: Some boy eats some apple.
+FOPC = exists(x5, boy(x5)&eats(x5, exists(x6, apple(x6)))) .
+
+4 ?- interpret_as_logic(FOPC).
+|: Some governments conscript some pacifist people.
+FOPC = exists(x7, governments(x7)&conscript(x7, exists(x8, person(x8)&pacifist(x8)))) .
+
+5 ?- interpret_as_logic(FOPC).
+|: All governments that conscript some pacifist people are evil.
+problem_in_rel3problem_in_vp1problem_in_vp3
+FOPC = all(x9, governments(x9)&conscript(x9, exists(x10, person(x10)&pacifist(x10)))=>evil(x9)) .
+
+
